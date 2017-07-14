@@ -11,6 +11,7 @@
 #### *В папке `/image` хранятся файлы, содержащие псевдографические картинки, используемые для визуализации допущенных ошибок*
 #### *В папке `/lib` хранятся файлы (`game.rb`, `result_printer.rb`, `word_reader`) - необходимые для работы программы*
 
-## Скриншоты игры:
+## Скриншот игры:
+![alt text](https://github.com/lordsynergy/viselitsa/blob/master/screen/viselitsa.png)
 
 
