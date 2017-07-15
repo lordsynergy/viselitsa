@@ -18,7 +18,7 @@ printer = ResultPrinter.new
 
 word_reader = WordReader.new
 
-words_file_name = File.dirname(__FILE__) + "/lib/data/words.txt"
+words_file_name = File.dirname(__FILE__) + "/data/words.txt"
 
 game = Game.new(word_reader.read_from_file(words_file_name))
 
