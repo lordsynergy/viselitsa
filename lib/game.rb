@@ -1,13 +1,18 @@
 require 'unicode_utils/downcase'
 
 class Game
+  attr_reader :letters, :errors, :good_letters, :bad_letters, :status
+
+  attr_accessor :version
+
+  MAX_ERRORS = 7
 
   def initialize(slovo)
     @letters = get_letters(slovo)
     @errors = 0
     @good_letters = []
     @bad_letters = []
-    @status = 0
+    @status = :in_progress # :won, :lost
   end
 
   def get_letters(slovo)
@@ -15,7 +20,7 @@ class Game
       abort "Вы не ввели слово для игры"
     end
 
-  return slovo.encode('UTF-8').split("")
+  slovo.encode('UTF-8').split("")
   end
 
   # 1. спросить букву с консоли
@@ -32,59 +37,64 @@ class Game
     next_step(letter)
   end
 
-  def next_step(bukva)
-    if @status == -1 || @status == 1
-      return
-    end
+  def max_errors
+    MAX_ERRORS
+  end
 
-    if good_letters.include?(bukva) || bad_letters.include?(bukva)
-      return
-    end
+  def errors_left
+    MAX_ERRORS - @errors
+  end
 
-    if letters.include?(bukva) ||
-      (bukva == "е" && letters.include?("ё")) ||
-      (bukva == "ё" && letters.include?("е")) ||
-      (bukva == "и" && letters.include?("й")) ||
-      (bukva == "й" && letters.include?("и"))
-      good_letters << bukva
+  def is_good?(letter)
+    letters.include?(letter) ||
+      (letter == "е" && letters.include?("ё")) ||
+      (letter == "ё" && letters.include?("е")) ||
+      (letter == "и" && letters.include?("й")) ||
+      (letter == "й" && letters.include?("и"))
+  end
 
-      good_letters << "ё" if bukva == "е"
-      good_letters << "е" if bukva == "ё"
-      good_letters << "й" if bukva == "и"
-      good_letters << "и" if bukva == "й"
+  def add_letter_to(letters, letter)
+    letters << letter
+    letters << "ё" if letter == "е"
+    letters << "е" if letter == "ё"
+    letters << "й" if letter == "и"
+    letters << "и" if letter == "й"
+  end
 
-      if (letters.uniq.sort - good_letters.uniq.sort).empty?
-        @status = 1
-      end
+  def solved?
+    (letters.uniq.sort - good_letters.uniq.sort).empty?
+  end
+
+  def repeated?(letter)
+    good_letters.include?(letter) || bad_letters.include?(letter)
+  end
+
+  def lost?
+    @status == :lost || @errors >= MAX_ERRORS
+  end
+
+  def in_progress?
+    @status == :in_progress
+  end
+
+  def won?
+    @status == :won
+  end
+
+  def next_step(letter)
+    return if @status == :lost || @status == :won
+    return if repeated?(letter)
+
+    if is_good?(letter)
+      add_letter_to(good_letters, letter)
+
+      @status = :won if solved?
     else
-      @bad_letters << bukva
+      add_letter_to(bad_letters, letter)
+
       @errors += 1
 
-        if @errors >= 7
-          @status = -1
-        end
+      @status = :lost if lost?
     end
   end
-
-  # Далее методы, возвращающие поля класса для возможного использования этих полей в других классах
-  def letters
-    return @letters
-  end
-
-  def good_letters
-    return @good_letters
-  end
-
-  def bad_letters
-    return @bad_letters
-  end
-
-  def status
-    return @status
-  end
-
-  def errors
-    return @errors
-  end
-
 end

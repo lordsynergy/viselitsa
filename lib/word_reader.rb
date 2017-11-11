@@ -20,6 +20,6 @@ class WordReader
       abort "Файл со словами не найден!"
     end
 
-    return lines.sample.chomp
+    lines.sample.chomp
   end
 end

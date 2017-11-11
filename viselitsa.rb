@@ -8,21 +8,26 @@ if Gem.win_platform?
   end
 end
 
-require "./lib/game.rb"
-require "./lib/result_printer.rb"
-require "./lib/word_reader.rb"
+require './lib/game.rb'
+require './lib/result_printer.rb'
+require './lib/word_reader.rb'
 
-puts "Игра \"Виселица\""
+VERSION = 'Игра "Виселица". Версия 5.'
 
-printer = ResultPrinter.new
-
+# Создаем экземпляр класса WordReader
 word_reader = WordReader.new
+words_file_name = "#{File.dirname(__FILE__)}/data/words.txt"
+word = word_reader.read_from_file(words_file_name)
 
-words_file_name = File.dirname(__FILE__) + "/data/words.txt"
+# Создаем игру и прописываем ее версию с помощью сеттера version=
+game = Game.new(word)
+game.version = VERSION
 
-game = Game.new(word_reader.read_from_file(words_file_name))
+# Теперь экземпляр ResultPrinter-а нельзя создать без игры
+# Именно поэтому порядо создания методов именно такой
+printer = ResultPrinter.new(game)
 
-while game.status == 0
+while game.in_progress?
   printer.print_status(game)
   game.ask_next_letter
 end
